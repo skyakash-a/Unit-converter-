@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Unit Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #2575fc;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .description {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .converter-box {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .category-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            background-color: #f0f0f0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .category-btn.active {
+            background-color: #2575fc;
+            color: white;
+        }
+
+        .converter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2575fc;
+        }
+
+        .swap-btn {
+            align-self: flex-end;
+            background-color: #2575fc;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .swap-btn:hover {
+            background-color: #1a68e0;
+            transform: rotate(180deg);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .result h3 {
+            color: #2575fc;
+            margin-bottom: 10px;
+        }
+
+        .conversion-result {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .history {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .history h3 {
+            color: #2575fc;
+            margin-bottom: 15px;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .converter-form {
+                flex-direction: column;
+            }
+            
+            .swap-btn {
+                align-self: center;
+                transform: rotate(90deg);
+            }
+            
+            .swap-btn:hover {
+                transform: rotate(270deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Universal Unit Converter</h1>
+            <p class="description">Convert between different units of measurement quickly and easily</p>
+        </header>
+        
+        <div class="converter-box">
+            <div class="category-selector">
+                <button class="category-btn active" data-category="length">Length</button>
+                <button class="category-btn" data-category="weight">Weight</button>
+                <button class="category-btn" data-category="temperature">Temperature</button>
+                <button class="category-btn" data-category="volume">Volume</button>
+            </div>
+            
+            <div class="converter-form">
+                <div class="input-group">
+                    <label for="from-value">From Value</label>
+                    <input type="number" id="from-value" value="1" step="any">
+                </div>
+                
+                <div class="input-group">
+                    <label for="from-unit">From Unit</label>
+                    <select id="from-unit">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+                
+                <button class="swap-btn" id="swap-units">⇄</button>
+                
+                <div class="input-group">
+                    <label for="to-unit">To Unit</label>
+                    <select id="to-unit">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="to-value">Result</label>
+                    <input type="text" id="to-value" readonly>
+                </div>
+            </div>
+            
+            <div class="result">
+                <h3>Conversion Result</h3>
+                <div class="conversion-result" id="conversion-result">1 meter = 100 centimeters</div>
+            </div>
+            
+            <div class="history">
+                <h3>Conversion History</h3>
+                <div class="history-list" id="history-list">
+                    <!-- History items will be added by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Universal Unit Converter | All conversions are approximate</p>
+        </footer>
+    </div>
+
+    <script>
+        // Unit conversion data
+        const conversionData = {
+            length: {
+                units: ['meter', 'centimeter', 'millimeter', 'kilometer', 'inch', 'foot', 'yard', 'mile'],
+                conversions: {
+                    meter: 1,
+                    centimeter: 100,
+                    millimeter: 1000,
+                    kilometer: 0.001,
+                    inch: 39.3701,
+                    foot: 3.28084,
+                    yard: 1.09361,
+                    mile: 0.000621371
+                }
+            },
+            weight: {
+                units: ['kilogram', 'gram', 'milligram', 'pound', 'ounce'],
+                conversions: {
+                    kilogram: 1,
+                    gram: 1000,
+                    milligram: 1000000,
+                    pound: 2.20462,
+                    ounce: 35.274
+                }
+            },
+            temperature: {
+                units: ['celsius', 'fahrenheit', 'kelvin'],
+                conversions: {
+                    // These are handled separately due to different formulas
+                }
+            },
+            volume: {
+                units: ['liter', 'milliliter', 'gallon', 'quart', 'pint', 'cup'],
+                conversions: {
+                    liter: 1,
+                    milliliter: 1000,
+                    gallon: 0.264172,
+                    quart: 1.05669,
+                    pint: 2.11338,
+                    cup: 4.22675
+                }
+            }
+        };
+
+        // DOM elements
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const fromValueInput = document.getElementById('from-value');
+        const fromUnitSelect = document.getElementById('from-unit');
+        const toUnitSelect = document.getElementById('to-unit');
+        const toValueInput = document.getElementById('to-value');
+        const swapButton = document.getElementById('swap-units');
+        const conversionResult = document.getElementById('conversion-result');
+        const historyList = document.getElementById('history-list');
+
+        // Current category
+        let currentCategory = 'length';
+        let conversionHistory = [];
+
+        // Initialize the converter
+        function initConverter() {
+            // Set up category buttons
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Update active button
+                    categoryButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Update current category
+                    currentCategory = button.dataset.category;
+                    
+                    // Update unit options
+                    updateUnitOptions();
+                    
+                    // Reset conversion
+                    convertUnits();
+                });
+            });
+            
+            // Set up input events
+            fromValueInput.addEventListener('input', convertUnits);
+            fromUnitSelect.addEventListener('change', convertUnits);
+            toUnitSelect.addEventListener('change', convertUnits);
+            
+            // Set up swap button
+            swapButton.addEventListener('click', swapUnits);
+            
+            // Initialize unit options
+            updateUnitOptions();
+            
+            // Perform initial conversion
+            convertUnits();
+        }
+
+        // Update unit options based on current category
+        function updateUnitOptions() {
+            const units = conversionData[currentCategory].units;
+            
+            // Clear current options
+            fromUnitSelect.innerHTML = '';
+            toUnitSelect.innerHTML = '';
+            
+            // Add new options
+            units.forEach(unit => {
+                const fromOption = document.createElement('option');
+                fromOption.value = unit;
+                fromOption.textContent = unit;
+                fromUnitSelect.appendChild(fromOption);
+                
+                const toOption = document.createElement('option');
+                toOption.value = unit;
+                toOption.textContent = unit;
+                toUnitSelect.appendChild(toOption);
+            });
+            
+            // Set default selections
+            if (currentCategory === 'length') {
+                fromUnitSelect.value = 'meter';
+                toUnitSelect.value = 'centimeter';
+            } else if (currentCategory === 'weight') {
+                fromUnitSelect.value = 'kilogram';
+                toUnitSelect.value = 'gram';
+            } else if (currentCategory === 'temperature') {
+                fromUnitSelect.value = 'celsius';
+                toUnitSelect.value = 'fahrenheit';
+            } else if (currentCategory === 'volume') {
+                fromUnitSelect.value = 'liter';
+                toUnitSelect.value = 'milliliter';
+            }
+        }
+
+        // Convert units based on current selections
+        function convertUnits() {
+            const fromValue = parseFloat(fromValueInput.value) || 0;
+            const fromUnit = fromUnitSelect.value;
+            const toUnit = toUnitSelect.value;
+            
+            let result;
+            
+            // Handle temperature conversions separately
+            if (currentCategory === 'temperature') {
+                result = convertTemperature(fromValue, fromUnit, toUnit);
+            } else {
+                // Standard conversion for other categories
+                const fromFactor = conversionData[currentCategory].conversions[fromUnit];
+                const toFactor = conversionData[currentCategory].conversions[toUnit];
+                
+                // Convert to base unit first, then to target unit
+                const baseValue = fromValue / fromFactor;
+                result = baseValue * toFactor;
+            }
+            
+            // Update result field
+            toValueInput.value = result.toFixed(6);
+            
+            // Update conversion result display
+            conversionResult.textContent = `${fromValue} ${fromUnit} = ${result.toFixed(6)} ${toUnit}`;
+            
+            // Add to history
+            addToHistory(fromValue, fromUnit, result, toUnit);
+        }
+
+        // Convert temperature between different scales
+        function convertTemperature(value, fromUnit, toUnit) {
+            // Convert to Celsius first
+            let celsius;
+            
+            if (fromUnit === 'celsius') {
+                celsius = value;
+            } else if (fromUnit === 'fahrenheit') {
+                celsius = (value - 32) * 5/9;
+            } else if (fromUnit === 'kelvin') {
+                celsius = value - 273.15;
+            }
+            
+            // Convert from Celsius to target unit
+            if (toUnit === 'celsius') {
+                return celsius;
+            } else if (toUnit === 'fahrenheit') {
+                return (celsius * 9/5) + 32;
+            } else if (toUnit === 'kelvin') {
+                return celsius + 273.15;
+            }
+            
+            return 0;
+        }
+
+        // Swap the from and to units
+        function swapUnits() {
+            const fromUnit = fromUnitSelect.value;
+            const toUnit = toUnitSelect.value;
+            
+            fromUnitSelect.value = toUnit;
+            toUnitSelect.value = fromUnit;
+            
+            convertUnits();
+        }
+
+        // Add conversion to history
+        function addToHistory(fromValue, fromUnit, toValue, toUnit) {
+            const historyItem = {
+                fromValue,
+                fromUnit,
+                toValue,
+                toUnit,
+                timestamp: new Date()
+            };
+            
+            // Add to beginning of history array
+            conversionHistory.unshift(historyItem);
+            
+            // Keep only last 10 items
+            if (conversionHistory.length > 10) {
+                conversionHistory.pop();
+            }
+            
+            // Update history display
+            updateHistoryDisplay();
+        }
+
+        // Update the history display
+        function updateHistoryDisplay() {
+            // Clear current history
+            historyList.innerHTML = '';
+            
+            // Add history items
+            conversionHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const conversionText = document.createElement('span');
+                conversionText.textContent = `${item.fromValue} ${item.fromUnit} → ${item.toValue.toFixed(4)} ${item.toUnit}`;
+                
+                const timeText = document.createElement('span');
+                timeText.textContent = item.timestamp.toLocaleTimeString();
+                
+                historyItem.appendChild(conversionText);
+                historyItem.appendChild(timeText);
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // Initialize the converter when the page loads
+        document.addEventListener('DOMContentLoaded', initConverter);
+    </script>
+</body>
+</html>
